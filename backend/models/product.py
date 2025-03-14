@@ -1,12 +1,12 @@
 from pydantic import BaseModel, HttpUrl
 from typing import List
 
-class Product(BaseModel):
+class Gift(BaseModel):
     name: str
     price: int
     url: HttpUrl
     reasons: List[str]
-    
-class ProductCategory(BaseModel):
+
+class GiftCategory(BaseModel):
     name: str
-    products: List[Product] # Ordered by some arbitrary ranking?
+    products: List[Gift] # Ordered by some arbitrary ranking?

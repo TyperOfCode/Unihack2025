@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from uuid import uuid4
-from get_product_options import get_product_options
+from get_gifts import get_gifts
 import json
 
 app = FastAPI()
@@ -23,6 +23,6 @@ app.add_middleware(
 async def ping():
     return {"success": True}
 
-@app.post("/get_products")
-async def get_products():
-    return await get_product_options()
+@app.post("/get_gifts")
+async def get_gifts_route():
+    return await get_gifts()
