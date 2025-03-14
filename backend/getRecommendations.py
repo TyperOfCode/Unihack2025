@@ -23,7 +23,7 @@ def select_gifts(data):
             {
                 "role": "system",
                 "content": """You are helping me pick out a gift for someone based on the data I provide you. You should provide a json array of 5 gift ideas. Each idea should have the following fields:
-                product: Type of product, reason: Why you think this is a good gift, price: Price of the product as just a number. For example: [{"product": "Book", "reason": "They love reading", "price": 20}]"""
+                product: Type of product, reason: Why you think this is a good gift, price: Price of the product"""
             },
             {
                 "role": "user",
