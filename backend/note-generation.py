@@ -2,9 +2,10 @@ import os
 from elevenlabs.client import ElevenLabs
 from dotenv import load_dotenv
 from openai import OpenAI
-from .gift import Gift
-from .profile_1 import GiftUserProfile
+
 from typing import List
+
+from models.profile import GiftUserProfile
 
 load_dotenv()
 

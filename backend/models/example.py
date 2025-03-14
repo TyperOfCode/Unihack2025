@@ -6,4 +6,3 @@ class Example(BaseModel):
     email: str
     phone: str
     
-    

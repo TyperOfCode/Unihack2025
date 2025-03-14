@@ -20,6 +20,3 @@ class GiftUserProfile(BaseModel):
     wishlist: Optional[List[str]] = None
     gift_guesses: Optional[List[str]] = None
     completed_percentage: float = 0.0
-
-class Gift(BaseModel):
-    name: str
