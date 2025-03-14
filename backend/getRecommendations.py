@@ -2,8 +2,18 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 import json
+from pydantic import BaseModel
+from typing import List, Optional
 
 load_dotenv()
+
+class Recommendation(BaseModel):
+    product: str
+    reason: str
+    price: float
+
+class Recommendations(BaseModel):
+    recommendations: List[Recommendation]
 
 def select_gifts(data):
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -12,7 +22,8 @@ def select_gifts(data):
         messages=[
             {
                 "role": "system",
-                "content": "You are helping me pick out a gift for someone based on the data I provide you. You should provide a json array of 5 gift ideas with reasons why you think they would be a good fit."
+                "content": """You are helping me pick out a gift for someone based on the data I provide you. You should provide a json array of 5 gift ideas. Each idea should have the following fields:
+                product: Type of product, reason: Why you think this is a good gift, price: Price of the product as just a number. For example: [{"product": "Book", "reason": "They love reading", "price": 20}]"""
             },
             {
                 "role": "user",
@@ -20,7 +31,9 @@ def select_gifts(data):
             }
         ]
     )
-    return completion.choices[0].message.content
+    recommendations_data = json.loads(completion.choices[0].message.content)
+    recommendations = [Recommendation(**rec) for rec in recommendations_data]
+    return Recommendations(recommendations=recommendations)
 
 
 json_data = json.dumps({
