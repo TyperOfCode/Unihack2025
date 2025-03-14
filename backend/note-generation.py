@@ -6,6 +6,7 @@ from openai import OpenAI
 from typing import List
 
 from models.profile import GiftUserProfile
+from models.product import Gift
 
 load_dotenv()
 
