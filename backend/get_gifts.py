@@ -1,14 +1,21 @@
 from google import genai
-from models.product import Gift, GiftCategory
+from models.gift import Gift, GiftCategory
+from models.recommendations import Recommendations
 import os
+import json
+from typing import List
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-async def get_gifts():
-    response = client.models.generate_content(
-        model = "gemini-2.0-flash", contents="Give me ideas and prices for laptops to buy as a gift. Give your answer in JSON, following the structure: {categories: [{name: string, product: {name: string, price: number, best_deal_url: string, reason: string}}]}. URLS should be from Australia."
-    ) # I was testing out, I'll replace this out with the actual thing in a little
+async def get_gifts(recommendations: Recommendations):
+    schema = json.dumps(GiftCategory.model_json_schema())
+    res = []
 
-    print(response.text)
+    for recommendation in recommendations:
+        response = client.models.generate_content(
+            model = "gemini-2.0-flash", contents=f"Give me 3 ideas and prices for {recommendation.product} to buy as a gift. I'd like them to fit the reason for buying, {recommendation.reason}, and be around the price {recommendation.price}. Give your answer in JSON, following the structure: {schema}. URLS should be from Australia.."
+        )
+        print(response.text[7:-3])
+        res.append(GiftCategory.model_validate_json(response.text[7:-3]))
 
-    return {}
+    return res
