@@ -33,6 +33,10 @@ async def buildProfile(data: LLMRequest):
 async def getRecommendations(data: GiftUserProfile):
     return get_recommendations(data)
 
-@app.post("/getProduct")
+@app.post("/getProducts")
 async def getProduct(data: Recommendation):
-    return get_product(data)
+    pass
+    # take in query string and run get_markdown
+    # run clean_md
+    # run aggregation
+    # return Products model from aggration
