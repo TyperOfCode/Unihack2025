@@ -5,6 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from uuid import uuid4
 import json
 
+from buildProfile import build_profile
+from models.profile import LLMRequest
+
 app = FastAPI()
 
 app.add_middleware(
@@ -18,3 +21,7 @@ app.add_middleware(
 @app.post("/ping")
 async def ping():
     return {"success": True}
+
+@app.post("/buildProfile")
+async def buildProfile(data: LLMRequest):
+    return build_profile(data.pastQuestions, data.pastAnswers, data.model)

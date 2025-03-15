@@ -3,16 +3,11 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 import json
-from pydantic import BaseModel
 from typing import List
 
-from models.profile import GiftUserProfile
+from models.profile import LLMResponse
 
 load_dotenv()
-
-class LLMResponse(BaseModel):
-    profile=GiftUserProfile,
-    newQuestion: str
 
 def build_profile(pastQuestions: List[str], pastAnswers: List[str], model: str):
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
