@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel
 
 class Product(BaseModel):
@@ -9,3 +10,6 @@ class Product(BaseModel):
 class CrawledData(BaseModel):
     url: str
     md: str
+
+class Products(BaseModel):
+    products: List[Product]

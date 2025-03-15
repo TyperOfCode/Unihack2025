@@ -1,10 +1,16 @@
-from models.product import CrawledData, Product
+import os
+import time
+from dotenv import load_dotenv
+from getProducts import get_markdown
+from models.product import CrawledData, Product, Products
 from typing import List
 from google import genai
 from openai import OpenAI
 
-client = genai.Client(api_key="GEMINI_API_KEY")
-openAiClient = OpenAI(api_key="OPEN_AI_KEY")
+load_dotenv()
+
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+openAiClient = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def clean_md(data: List[CrawledData], product: str):
     data_to_clean = ""
@@ -38,7 +44,6 @@ def clean_md(data: List[CrawledData], product: str):
         model="gemini-2.0-flash",
         contents=clean_prompt,
     )
-    print(response.text)
     return response.text
 
 def aggregation(summaries: str):
@@ -48,9 +53,9 @@ def aggregation(summaries: str):
             {
                 "role": "system",
                 "content": """You are a specialised data analyst. You will be given multiple summaries (separated by a newline) about a certain product
-                but from different websites. Your job is to aggregate all the summaries to then decide which website the user should purchase the product from.
+                but from different websites. Your job is to aggregate all the summaries to then decide which three products the user should purchase.
                 Take into consideration price, reviews, availability and any other data point that is relevant. After deciding
-                the website, return your findings in the response_format provided.
+                on which products, return your findings in the response_format provided.
                 """
             },
             {
@@ -58,7 +63,7 @@ def aggregation(summaries: str):
                 "content": summaries
             }
         ],
-        response_format=Product
+        response_format=Products
     )
     response = completion.choices[0].message.parsed
     return response.model_dump()
