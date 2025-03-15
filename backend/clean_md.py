@@ -5,6 +5,7 @@ from openai import OpenAI
 
 client = genai.Client(api_key="GEMINI_API_KEY")
 openAiClient = OpenAI(api_key="OPEN_AI_KEY")
+
 def clean_md(data: List[CrawledData], product: str):
     data_to_clean = ""
     for cD in data:
@@ -30,7 +31,7 @@ def clean_md(data: List[CrawledData], product: str):
     Below is the md data you will need to process. The data is split by each url's md file:
     {data_to_clean}
 
-    Return a string where each summary is separated by a new line.
+    Return a single string containing each summary separated by a newline.
     """
 
     response = client.models.generate_content(
