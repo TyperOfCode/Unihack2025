@@ -11,5 +11,6 @@ class Recommendations(BaseModel):
 
 class Gift(BaseModel):
     product: str
+    description: str
     price: float
     url: str

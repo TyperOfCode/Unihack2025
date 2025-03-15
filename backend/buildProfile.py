@@ -33,9 +33,10 @@ def build_profile(pastQuestions: List[str], pastAnswers: List[str], model: str):
                 
                 You will need to also update the profile based on the last question and answer.
                 
-                Don't ask past questions. Judge completeness by how filled out the GiftUserProfile is, it is okay for some of the fields to be None, though you should ask questions to try and get answers to all fields.
+                Don't ask past questions. Questions should be no more than 1 sentence long. 
                 
-                The completed_percentage field should be a number between 0 and 100 that represents how complete the profile is. This should be based on how many fields are filled out and how detailed they are.
+                Judge completeness by how filled out the GiftUserProfile is, it is okay for some of the fields to be None, though you should ask questions to try and get answers to all fields.
+                Factor in the past questions and answers when judging completeness, some fields may not have an answer.
                 
                 Return a new question that will help fill out the profile further."""
             }
