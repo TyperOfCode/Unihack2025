@@ -33,7 +33,3 @@ def get_markdown(query: str):
     for site in response2:
         return_list.append(CrawledData(url=site["url"], md=site["content"]))
     return return_list
-
-l = get_markdown("sony headphones")
-s = clean_md(l)
-print(aggregation(s))

@@ -6,7 +6,8 @@ from uuid import uuid4
 import json
 
 from buildProfile import build_profile
-from getProducts import get_product
+from clean_md import aggregation, clean_md
+from getProducts import get_markdown
 from getRecommendations import get_recommendations
 from models.profile import GiftUserProfile, LLMRequest
 from models.recommendations import Recommendation
@@ -33,6 +34,8 @@ async def buildProfile(data: LLMRequest):
 async def getRecommendations(data: GiftUserProfile):
     return get_recommendations(data)
 
-@app.post("/getProduct")
+@app.post("/getProducts")
 async def getProduct(data: Recommendation):
-    return get_product(data)
+    md = get_markdown(data.product)
+    summaries = clean_md(md)
+    return aggregation(summaries)
