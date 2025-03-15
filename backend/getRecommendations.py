@@ -7,7 +7,7 @@ from models.profile import GiftUserProfile
 
 load_dotenv()
 
-def select_gifts(data: GiftUserProfile):
+def get_recommendations(data: GiftUserProfile):
     data_string = json.dumps(data.model_dump())
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     completion = client.beta.chat.completions.parse(

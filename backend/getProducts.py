@@ -34,7 +34,7 @@ def get_page_html(url, wait_time=10):
     
     return page_html
 
-def select_product(data: Recommendation):
+def get_product(data: Recommendation):
     query = f"{data.product} for sale Sydney Australia around ${data.price}"
     url = search(query, tld="co.in", num=10, stop=10, pause=2).__next__()
     greater_html = get_page_html(url)
@@ -60,4 +60,4 @@ def select_product(data: Recommendation):
 
 
 data: Recommendation = Recommendation(product="Painting Set", reason="She loves impressionist art work", price=50)
-print(select_product(data))
+print(get_product(data))

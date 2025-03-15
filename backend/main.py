@@ -6,7 +6,10 @@ from uuid import uuid4
 import json
 
 from buildProfile import build_profile
-from models.profile import LLMRequest
+from getProducts import get_product
+from getRecommendations import get_recommendations
+from models.profile import GiftUserProfile, LLMRequest
+from models.recommendations import Recommendation
 
 app = FastAPI()
 
@@ -25,3 +28,11 @@ async def ping():
 @app.post("/buildProfile")
 async def buildProfile(data: LLMRequest):
     return build_profile(data.pastQuestions, data.pastAnswers, data.model)
+
+@app.post("/getRecommendations")
+async def getRecommendations(data: GiftUserProfile):
+    return get_recommendations(data)
+
+@app.post("/getProduct")
+async def getProduct(data: Recommendation):
+    return get_product(data)
