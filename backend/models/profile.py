@@ -19,7 +19,7 @@ class GiftUserProfile(BaseModel):
     upcoming_events: Optional[List[str]] = None
     wishlist: Optional[List[str]] = None
     gift_guesses: Optional[List[str]] = None
-    completed_percentage: float = 0.0
+    completed_percentage: float
 
 class LLMRequest(BaseModel):
     pastQuestions: List[str]
@@ -27,5 +27,5 @@ class LLMRequest(BaseModel):
     model: str
 
 class LLMResponse(BaseModel):
-    profile=GiftUserProfile,
+    profile: GiftUserProfile
     newQuestion: str
