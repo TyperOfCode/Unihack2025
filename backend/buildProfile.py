@@ -21,7 +21,8 @@ def build_profile(pastQuestions: List[str], pastAnswers: List[str], model: str):
             
             You will need to also update the profile based on the last question and answer.
             
-            Don't ask past questions. Judge completeness by how filled out the GiftUserProfile is, it is okay for some of the fields to be None, though you should ask questions to try and get answers to all fields."""
+            Don't ask past questions. Questions should be no more than 1 sentence long.
+            Judge completeness by how filled out the GiftUserProfile is, it is okay for some of the fields to be None, though you should ask questions to try and get answers to all fields."""
         },
     ],
     completion = client.beta.chat.completions.parse(
