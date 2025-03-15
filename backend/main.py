@@ -37,7 +37,7 @@ async def ping():
 @app.post("/buildProfile")
 async def buildProfile(data: LLMRequest):
     try:
-        result = build_profile(data.pastQuestions, data.pastAnswers, data.model)
+        result = build_profile(data.pastQuestions, data.pastAnswers, data.profile)
         return JSONResponse(content=json.loads(result))
     except Exception as e:
         print(f"Error in buildProfile: {str(e)}")

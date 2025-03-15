@@ -23,7 +23,10 @@ export default function Home() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [giftProfile, setGiftProfile] = useState<GiftUserProfile | null>({
-    completed_percentage: 0
+    completed_percentage: 0,
+    interests: [],
+    dislikes: [],
+    about: ""
   });
   const [serverStatus, setServerStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   const [serverError, setServerError] = useState<string | null>(null);

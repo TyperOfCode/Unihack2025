@@ -5,7 +5,7 @@ import json
 from typing import List, Dict, Any
 import traceback
 
-from models.profile import LLMResponse, GiftUserProfile
+from models.profile import LLMResponse
 
 load_dotenv()
 
@@ -22,6 +22,8 @@ def build_profile(pastQuestions: List[str], pastAnswers: List[str], model: str):
         
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         
+        print(current_profile)
+        
         # Format the messages for the API call
         messages = [
             {
@@ -31,20 +33,27 @@ def build_profile(pastQuestions: List[str], pastAnswers: List[str], model: str):
                 a list of past answers: {pastAnswers},
                 and the current profile model: {current_profile}.
                 
+                the most recent question is: {pastQuestions[-1]} 
+                and the most recent answer is: {pastAnswers[-1]}.
+                
                 You will need to also update the profile based on the last question and answer.
                 
                 Don't ask past questions. Questions should be no more than 1 sentence long. 
                 
-                Judge completeness by how filled out the GiftUserProfile is, it is okay for some of the fields to be None, though you should ask questions to try and get answers to all fields.
+                Judge completeness by how filled out the GiftUserProfile is, there should be a coule of interests and a semi specific description of the person.
                 Factor in the past questions and answers when judging completeness, some fields may not have an answer.
                 
-                Return a new question that will help fill out the profile further."""
+                Profile completeness must only go up, never down.
+                Return the current profile with ADDED detail, do not remove any detail.
+                
+                Return a new question that will help fill out the profile further for the sole purpose of giving them a gift.
+                """
             }
         ]
         
         # Make the API call
         completion = client.beta.chat.completions.parse(
-            model="o3-mini",
+            model="gpt-4o",
             messages=messages,
             response_format=LLMResponse
         )

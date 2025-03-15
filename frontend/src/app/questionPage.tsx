@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import GradientButton from "@/components/GradientButton";
 import { buildProfile } from "@/lib/api";
 import { GiftUserProfile, LLMResponse } from "@/types/profile";
 import { PageState } from "./page";
+import { Conversation } from "@/components/Conversation";
+import { TranscriptItem, TranscriptItemType } from "@/models/transcriptItem";
+import Message from "@/models/message";
 
 interface QuestionPageProps {
   isAnimating: boolean;
@@ -26,189 +29,240 @@ const QuestionPage: React.FC<QuestionPageProps> = ({
   setGiftProfile,
   giftProfile
 }) => {
-  const [currentQuestion, setCurrentQuestion] = useState<string>("Tell me about them!");
+  const [currentQuestion, setCurrentQuestion] = useState<string>("What kind of person are we talking about...");
   const [pastQuestions, setPastQuestions] = useState<string[]>([]);
   const [pastAnswers, setPastAnswers] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [tags, setTags] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Extract tags from the gift profile
+  const [transcript, setTranscript] = useState<TranscriptItem[]>([]);
+  const [inCall, setInCall] = useState<boolean>(false);
+  
+  // Use refs to maintain state between function calls
+  const pastQuestionsRef = useRef<string[]>([]);
+  const pastAnswersRef = useRef<string[]>([]);
+  const giftProfileRef = useRef<GiftUserProfile | null>(giftProfile);
+  
+  // Update refs when state changes
   useEffect(() => {
-    if (!giftProfile) return;
-    
-    const newTags: string[] = [];
-    
-    // Add likes
-    if (giftProfile.likes) {
-      giftProfile.likes.forEach(like => {
-        newTags.push(like.name);
-      });
-    }
-    
-    // Add dislikes
-    if (giftProfile.dislikes) {
-      giftProfile.dislikes.forEach(dislike => {
-        newTags.push(dislike.name);
-      });
-    }
-    
-    // Add other relevant profile information as tags
-    if (giftProfile.age) newTags.push(`Age: ${giftProfile.age}`);
-    if (giftProfile.gender) newTags.push(giftProfile.gender);
-    if (giftProfile.occupation) newTags.push(giftProfile.occupation);
-    if (giftProfile.location) newTags.push(giftProfile.location);
-    if (giftProfile.budget) newTags.push(`Budget: $${giftProfile.budget}`);
-    
-    setTags([...new Set(newTags)]); // Remove duplicates
+    pastQuestionsRef.current = pastQuestions;
+  }, [pastQuestions]);
+  
+  useEffect(() => {
+    pastAnswersRef.current = pastAnswers;
+  }, [pastAnswers]);
+  
+  // Update giftProfileRef when the prop changes
+  useEffect(() => {
+    giftProfileRef.current = giftProfile;
   }, [giftProfile]);
 
-  const handleSubmitAnswer = async () => {
-    if (!inputValue.trim() || isLoading) return;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    // Add current question and answer to history
-    const updatedPastQuestions = [...pastQuestions, currentQuestion];
-    const updatedPastAnswers = [...pastAnswers, inputValue];
-    
-    setPastQuestions(updatedPastQuestions);
-    setPastAnswers(updatedPastAnswers);
-    
-    try {
-      const response = await buildProfile({
-        pastQuestions: updatedPastQuestions,
-        pastAnswers: updatedPastAnswers,
-        model: JSON.stringify(giftProfile || { completed_percentage: 0 })
-      });
-      
-      // Validate the response
-      if (!response || !response.profile || !response.newQuestion) {
-        throw new Error("Invalid response from server. Missing profile or question data.");
-      }
-      
-      console.log("Profile response:", response);
-      
-      // Ensure completed_percentage is present
-      if (response.profile.completed_percentage === undefined) {
-        response.profile.completed_percentage = giftProfile?.completed_percentage || 0;
-      }
-      
-      // Update the gift profile and next question
-      setGiftProfile(response.profile);
-      setCurrentQuestion(response.newQuestion);
-      setInputValue(""); // Clear input for next question
-      
-      // Check if profile is complete enough to proceed
-      if (response.profile.completed_percentage >= 80) {
-        handleNext();
-      }
-    } catch (error) {
-      console.error("Error building profile:", error);
-      setError(error instanceof Error ? error.message : "An error occurred while processing your answer. Please try again.");
-    } finally {
-      setIsLoading(false);
+  const onMessage = (message: Message) => {
+    console.log(message);
+
+    const item: TranscriptItem = {
+      type: TranscriptItemType.CHAT,
+      text: message.message
     }
-  };
+    setTranscript((prev) => [...prev, item]);
+  }
+
+  const onToolUsed = (tool: string) => {
+    const item: TranscriptItem = {
+      type: TranscriptItemType.TOOL,
+      text: `${tool}`
+    }
+    
+    setTranscript((prev) => [...prev, item]);
+  }
+
+  const clearTranscript = () => {
+    setTranscript([]);
+  }
+
+  const handleSubmitAnswer = async (answer: string) => {
+    // Use the ref values to ensure we have the most up-to-date state
+    const updatedPastAnswers = [...pastAnswersRef.current, answer];
+    const updatedPastQuestions = [...pastQuestionsRef.current, currentQuestion];
+    const currentGiftProfile = giftProfileRef.current;
+    
+    // Update state
+    setPastAnswers(updatedPastAnswers);
+    setPastQuestions(updatedPastQuestions);
+    
+    // Update refs immediately
+    pastAnswersRef.current = updatedPastAnswers;
+    pastQuestionsRef.current = updatedPastQuestions;
+
+    // console.log("handleSubmitAnswer called");
+    // console.log("Current pastQuestions:", pastQuestionsRef.current);
+    // console.log("Updated pastQuestions:", updatedPastQuestions);
+    // console.log("Current pastAnswers:", pastAnswersRef.current);
+    // console.log("Updated pastAnswers:", updatedPastAnswers);
+    // console.log("currentQuestion:", currentQuestion);
+    // console.log("answer:", answer);
+    // console.log("giftProfile:", currentGiftProfile);
+
+    const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        `${backend_url}/buildProfile`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            pastQuestions: updatedPastQuestions,
+            pastAnswers: updatedPastAnswers,
+            profile: JSON.stringify(currentGiftProfile)
+          })
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to build profile");
+      }
+
+      const data = await response.json() as LLMResponse;
+
+      // Update both the state and the ref
+      setGiftProfile(data.profile);
+      giftProfileRef.current = data.profile;
+      
+      setIsLoading(false);
+      
+      // Check if profile completion percentage is over 60%
+      if (data.profile.completed_percentage > 60) {
+        // Add a small delay to allow the user to see the final response
+        setTimeout(() => {
+          handleNext(); // Navigate to the research page
+        }, 2000);
+        return JSON.stringify({
+          newQuestion: "That's enough information for now. Goodbye!"
+        });
+      }
+      
+      return JSON.stringify(data.newQuestion);
+    } catch (error) {
+      console.error("Error in buildProfile:", error);
+      setError("Failed to build profile");
+      setIsLoading(false);
+      return JSON.stringify({ error: "Error building profile" });
+    }
+  }
+
+  const addToQuestions = (question: string) => {
+    setCurrentQuestion(question);
+    // Use the ref value to ensure we have the most up-to-date state
+    const updatedPastQuestions = [...pastQuestionsRef.current, question];
+    setPastQuestions(updatedPastQuestions);
+    // Update ref immediately
+    pastQuestionsRef.current = updatedPastQuestions;
+  }
+
 
   return (
-    <div className="w-full max-w-5xl">
-      {/* Speech bubble at the top */}
-      <div className="bg-white p-6 rounded-3xl shadow-md max-w-xl mx-auto mb-8 relative">
-        <p className="text-[#e77ed6] text-2xl font-bold text-center">{currentQuestion}</p>
-      </div>
+    <div className={`w-full max-w-6xl transition-opacity duration-500 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+    
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+        {/* Left side - Avatar */}
+        <div className="flex-shrink-0">
 
-      <div className="bg-white p-8 rounded-3xl shadow-md mb-8">
-        {/* Character image positioned to the left */}
-        <div className="flex flex-col md:flex-row items-start gap-8">
-          <div className="flex-shrink-0 -mt-16 ml-4">
-            <Image 
-              src="/avatar-2.png" 
-              alt="Gift Box Character with Notepad" 
-              width={150} 
-              height={150}
-              className="object-contain"
-            />
+          <Image 
+            src={ inCall ? "/avatar-2.png" : "/avatar-1.png" }
+            alt="Gift Box Character" 
+            width={300} 
+            height={300}
+            className="object-contain"
+            priority
+          />
+        </div>
+        
+        {/* Right side - Content */}
+        <div className={`flex-grow ${inCall ? '' : 'hidden'}`}>
+          {/* Speech bubble with question */}
+          <div className={`bg-white p-6 rounded-3xl shadow-md mb-8 relative`}>
+            <div className="absolute left-0 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rotate-45 bg-white"></div>
+            <h1 className="text-4xl font-black text-[#e77ed6]">{currentQuestion}</h1> 
           </div>
 
-          {/* Tags and input */}
-          <div className="w-full">
-            <div className="flex flex-wrap gap-2 mb-6">
-              {tags.length > 0 ? (
-                tags.map((tag, index) => (
-                  <span 
-                    key={index} 
-                    className="bg-white text-[#6a75e8] px-4 py-2 rounded-full shadow-sm border border-gray-100"
-                  >
-                    {tag}
-                  </span>
-                ))
-              ) : (
-                <span className="text-gray-400 italic">No tags yet. Answer questions to build a profile.</span>
-              )}
-            </div>
-            
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Answer Here"
-              className="w-full p-4 border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-[#e77ed6]"
-              disabled={isLoading}
-            />
-            
-            <div className="flex justify-end">
-              <GradientButton 
-                onClick={handleSubmitAnswer}
-                size="md"
-                rounded="lg"
-                disabled={isLoading || !inputValue.trim()}
-              >
-                {isLoading ? (
-                  <div className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing...
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            {/* Interests section */}
+            <div>
+              <h2 className="text-2xl font-black text-[#6b7cff] mb-4">Interests</h2>
+              <div className="bg-[#f5f5ff] p-4 rounded-xl min-h-[200px]">
+                {giftProfile && giftProfile.interests && giftProfile.interests.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {giftProfile.interests.map((interest, index) => (
+                      <div 
+                        key={index} 
+                        className="bg-white px-4 py-2 rounded-full text-[#6b7cff] font-medium flex items-center"
+                      >
+                        {interest}
+                      </div>
+                    ))}
                   </div>
-                ) : "Next"}
-              </GradientButton>
+                ) : (
+                  <div className="text-gray-400 italic">No interests added yet...</div>
+                )}
+              </div>
             </div>
             
-            {error && (
-              <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg">
-                <p className="font-medium">Error:</p>
-                <p>{error}</p>
+            {/* Description section */}
+            <div>
+              <h2 className="text-2xl font-black text-[#6b7cff] mb-4">Description</h2>
+              <div className="bg-[#f5f5ff] p-4 rounded-xl min-h-[200px]">
+                {giftProfile && giftProfile.about ? (
+                  <p>{giftProfile.about}</p>
+                ) : (
+                  <p className="text-gray-400 italic">User Description...</p>
+                )}
               </div>
-            )}
+            </div>
+            </div>
+          
+          
+        </div>
+      </div>
+
+      {/* Question and input */}
+      <div className="mt-12">
+        <div className="flex justify-center">
+
+          <Conversation 
+            dynamicVariables={{}}
+            onMessage={onMessage}
+            clearTranscript={clearTranscript}
+            setInCall={setInCall}
+            onToolUsed={onToolUsed}
+            handleSubmitAnswer={handleSubmitAnswer}
+            addToQuestions={addToQuestions}
+          />
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="mt-12 mb-6">
+        <div className="flex flex-col items-center">
+          <div className="w-full max-w-md">
+            <div className="flex justify-between mb-2">
+              <span className="text-sm font-black text-[#6b7cff]">Profile Completion</span>
+              <span className="text-sm font-black text-[#6b7cff]">
+                {giftProfile?.completed_percentage || 0}%
+              </span>
+            </div>
+            <div className="w-full bg-[#FDE7FA] rounded-full h-2.5">
+              <div 
+                className="bg-gradient-to-r from-[#6b7cff] to-[#e77ed6] h-2.5 rounded-full transition-all duration-500 ease-in-out" 
+                style={{ width: `${giftProfile?.completed_percentage || 0}%` }}
+              ></div>
+            </div>
           </div>
         </div>
       </div>
-      
-      <div className="text-center">
-        <GradientButton 
-          onClick={handleBackToHome}
-          size="md"
-          rounded="lg"
-          disabled={isLoading}
-        >
-          Back to Home
-        </GradientButton>
-      </div>
-      
-      {giftProfile && (
-        <div className="mt-4 text-center text-gray-600">
-          Profile completion: {Math.round(giftProfile.completed_percentage)}%
-          <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-            <div 
-              className="bg-[#e77ed6] h-2.5 rounded-full" 
-              style={{ width: `${giftProfile.completed_percentage}%` }}
-            ></div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };
