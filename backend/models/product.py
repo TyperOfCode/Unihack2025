@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 class Product(BaseModel):
+    url: str
     name: str
     description: str
     price: int
