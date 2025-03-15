@@ -62,3 +62,4 @@ def aggregation(summaries: str):
     )
     response = completion.choices[0].message.parsed
     return response.model_dump()
+

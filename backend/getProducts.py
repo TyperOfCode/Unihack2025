@@ -9,7 +9,7 @@ from googlesearch import search
 from google import genai
 
 load_dotenv()
-
+from clean_md import aggregation, clean_md
 def get_markdown(query: str):
     headers = {
         'Authorization': f'Bearer {os.getenv("SPIDER_API_KEY")}',
@@ -33,3 +33,7 @@ def get_markdown(query: str):
     for site in response2:
         return_list.append(CrawledData(url=site["url"], md=site["content"]))
     return return_list
+
+l = get_markdown("sony headphones")
+s = clean_md(l)
+print(aggregation(s))
