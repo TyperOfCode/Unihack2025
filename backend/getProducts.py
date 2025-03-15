@@ -3,6 +3,7 @@ import os, requests
 import re
 import time
 from dotenv import load_dotenv
+from models.product import CrawledData
 from models.recommendations import Gift, Recommendation
 from googlesearch import search
 from google import genai
@@ -27,6 +28,8 @@ def get_markdown(query: str):
     json_data = {"limit":1,"return_format":"markdown", "url":urls_string}
 
     response2 = requests.post('https://api.spider.cloud/crawl', 
-    headers=headers, json=json_data)
-
-    return response2.json()
+    headers=headers, json=json_data).json()
+    return_list = []
+    for site in response2:
+        return_list.append(CrawledData(url=site["url"], md=site["content"]))
+    return return_list
