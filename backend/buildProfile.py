@@ -24,7 +24,7 @@ def build_profile(pastQuestions: List[str], pastAnswers: List[str], model: str):
             Don't ask past questions. Judge completeness by how filled out the GiftUserProfile is, it is okay for some of the fields to be None, though you should ask questions to try and get answers to all fields."""
         },
     ],
-    completion = client.chat.completions.create(
+    completion = client.beta.chat.completions.parse(
         model="o3-mini",
         messages=messages,
         response_format=LLMResponse

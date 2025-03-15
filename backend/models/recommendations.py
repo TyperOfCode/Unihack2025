@@ -8,3 +8,8 @@ class Recommendation(BaseModel):
 
 class Recommendations(BaseModel):
     recommendations: List[Recommendation]
+
+class Gift(BaseModel):
+    product: str
+    price: float
+    url: str

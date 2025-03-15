@@ -10,7 +10,7 @@ load_dotenv()
 def select_gifts(data: GiftUserProfile):
     data_string = json.dumps(data.model_dump())
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    completion = client.chat.completions.create(
+    completion = client.beta.chat.completions.parse(
         model="o3-mini",
         messages=[
             {
@@ -22,8 +22,8 @@ def select_gifts(data: GiftUserProfile):
                 "role": "user",
                 "content": data_string
             }
-        ]
+        ],
+        response_format=Recommendations
     )
-    recommendations_data = json.loads(completion.choices[0].message.content)
-    recommendations = [Recommendation(**rec) for rec in recommendations_data]
-    return Recommendations(recommendations=recommendations)
+    response: Recommendations = completion.choices[0].message.parsed
+    return json.dumps(response.model_dump())
