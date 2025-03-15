@@ -12,6 +12,11 @@ from google import genai
 
 load_dotenv()
 
+def extract_image_urls(markdown: str) -> List[str]:
+    # Regular expression to find image URLs in markdown
+    image_url_pattern = re.compile(r'!\[.*?\]\((.*?)\)')
+    return image_url_pattern.findall(markdown)
+
 def get_listing(product: str):
     sites: List[CrawledData] = get_markdown("buy " + product)
     print(sites[0].url)
@@ -30,6 +35,8 @@ def get_listing(product: str):
         count += 1
         if count >= len(sites):
             return sites[0].url
-    return sites[count - 1].url
+    count -= 1
+    images = extract_image_urls(sites[count].md)
+    return (sites[count].url, images)
 
 print(get_listing("Born Acrylic Paint Set 40 Pieces"))
