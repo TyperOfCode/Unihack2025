@@ -4,8 +4,6 @@ from typing import List
 class Gift(BaseModel):
     name: str
     price: int
-    url: HttpUrl
-    reasons: List[str]
 
 class GiftCategory(BaseModel):
     name: str
