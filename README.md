@@ -1,1 +1,1 @@
-# AI Gift Agent (To be named)
+# Gifty.AI
