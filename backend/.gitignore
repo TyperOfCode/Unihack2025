@@ -1,3 +1,11 @@
 .venv
 .env
 __pycache__/
+
+*.cpython
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
