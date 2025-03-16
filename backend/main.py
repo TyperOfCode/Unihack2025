@@ -63,6 +63,7 @@ async def getProduct(data: Recommendation, profile: GiftUserProfile):
     return await get_product_async(data.product, profile)
 
  
+ 
 
 # Add a global exception handler
 @app.exception_handler(Exception)

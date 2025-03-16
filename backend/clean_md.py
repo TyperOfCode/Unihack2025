@@ -68,4 +68,3 @@ def aggregation(summaries: str, profile: str):
     )
     response = completion.choices[0].message.parsed
     return response
-    return response

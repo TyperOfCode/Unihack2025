@@ -7,11 +7,13 @@ import Image from "next/image";
 interface SummaryPageProps {
   products: Product[];
   handleBack: () => void;
+  handleRestart: () => void;
 }
 
 const SummaryPage: React.FC<SummaryPageProps> = ({
   products,
   handleBack,
+  handleRestart,
 }) => {
   return (
     <div className="w-full max-w-5xl">
