@@ -9,6 +9,7 @@ import LoadingAnimationPage from "./loadingAnimationPage";
 import SummaryPage from "./summaryPage";
 import { GiftUserProfile } from "@/models/profile";
 import { pingServer } from "@/lib/api";
+import { Recommendation } from "@/models/recommendation";
 
 // Define page states as an enum
 export enum PageState {
@@ -32,6 +33,7 @@ export default function Home() {
   });
   const [serverStatus, setServerStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   const [serverError, setServerError] = useState<string | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
 
   // Check if the server is running
   useEffect(() => {
@@ -98,7 +100,7 @@ export default function Home() {
       );
     }
 
-    const recommendation = {
+    const recommendation: Recommendation = {
       product: "Gaming Keyboard",
       reason: "They love to game and they need a new keyboard",
       price: 50
@@ -146,17 +148,15 @@ export default function Home() {
             handleNext={() => navigateTo(PageState.SUMMARY)}
             handleBack={() => navigateTo(PageState.NOTE)}
             chosenCategory={recommendation}
+            setProducts={setProducts}
+            giftProfile={giftProfile}
           />
         );
       case PageState.SUMMARY:
         return (
           <SummaryPage 
-            handleRestart={() => {
-              setGiftProfile(null);
-              navigateTo(PageState.START);
-            }}
             handleBack={() => navigateTo(PageState.LOADING_ANIMATION)}
-            products={[]}
+            products={products}
           />
         );
       default:
