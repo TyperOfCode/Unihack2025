@@ -6,7 +6,6 @@ class Product(BaseModel):
     description: str
     price: int
     review_sentiment: str
-    reason: str
 
 class CrawledData(BaseModel):
     url: str
@@ -24,6 +23,5 @@ class DisplayProduct(BaseModel):
     price: int
     description: str
     review_sentiment: str
-    reason: str
     image: str
     url: str
