@@ -12,6 +12,7 @@ import json
 import traceback
 
 from buildProfile import build_profile
+from getListing import get_listing
 from getProducts import get_product
 from getRecommendations import get_recommendations
 from models.profile import GiftUserProfile, LLMRequest
@@ -67,6 +68,11 @@ async def getProduct(data: Recommendation):
     # run clean_md
     # run aggregation
     # return Products model from aggration
+
+@app.post("/getListing")
+async def getListing(data: str):
+    return get_listing(data)
+
     
 
 # Add a global exception handler
