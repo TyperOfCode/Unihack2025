@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
 import Image from "next/image";
 import { Recommendation } from "@/models/recommendation";
+import { GiftUserProfile } from "@/models/profile";
 
 interface LoadingAnimationPageProps {
   handleNext: () => void;
   handleBack: () => void;
   chosenCategory: Recommendation;
+  setProducts: Dispatch<SetStateAction<any[]>>;
+  giftProfile: GiftUserProfile | null;
 }
 
 interface Position {
@@ -18,11 +21,14 @@ interface Position {
 const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
   handleNext,
   handleBack,
-  chosenCategory,
+  chosenCategory: recommendation,
+  setProducts,
+  giftProfile,
 }) => {
   // State for URLs fetched from backend
   const [urls, setUrls] = useState<string[]>([]);
   const [isUrlsFetched, setIsUrlsFetched] = useState(false);
+  const [isProductsFetched, setIsProductsFetched] = useState(false);
   
   // List of speech bubble comments
   const speechComments = [
@@ -65,7 +71,7 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
       try {
         const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
         const searchQuery = {
-          query: `${chosenCategory.product} review guide 2025`
+          query: `${recommendation.product} review guide 2025`
         };
         
         const response = await fetch(`${backend_url}/getURLS`, {
@@ -112,7 +118,54 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
     };
     
     fetchUrls();
-  }, [chosenCategory]);
+  }, [recommendation]);
+
+  // Fetch products from backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (!isInitialized || isProductsFetched) return;
+      
+      try {
+        const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+        
+        const response = await fetch(`${backend_url}/getProducts`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            data: recommendation,
+            profile: giftProfile
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        
+        const data = await response.json();
+        
+        // Set the products in the parent component
+        setProducts(data);
+        setIsProductsFetched(true);
+        
+        // Set loading to false to proceed to next page
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        // Even if there's an error, we should still proceed after a delay
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 5000);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      fetchProducts();
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [isInitialized, isProductsFetched, recommendation, giftProfile, setProducts]);
   
   // Initialize positions once URLs are fetched and container is ready
   useEffect(() => {
@@ -230,17 +283,6 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
       }
     };
   }, [isInitialized, tilePositions]);
-  
-  // Auto-proceed to next page after a delay
-  useEffect(() => {
-    if (!isInitialized) return;
-    
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 30000); // 30 seconds of loading animation (increased to give more time to play)
-    
-    return () => clearTimeout(timer);
-  }, [isInitialized]);
   
   // Auto-proceed to next page when loading is complete
   useEffect(() => {

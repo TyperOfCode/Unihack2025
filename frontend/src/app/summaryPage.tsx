@@ -7,13 +7,11 @@ import Image from "next/image";
 interface SummaryPageProps {
   products: Product[];
   handleBack: () => void;
-  handleRestart: () => void;
 }
 
 const SummaryPage: React.FC<SummaryPageProps> = ({
   products,
   handleBack,
-  handleRestart,
 }) => {
   return (
     <div className="w-full max-w-5xl">
@@ -75,24 +73,6 @@ const SummaryPage: React.FC<SummaryPageProps> = ({
               </div>
             </div>
           ))}
-        </div>
-        
-        <div className="flex justify-between mt-4">
-          <GradientButton
-            onClick={handleBack}
-            size="sm"
-            rounded="lg"
-          >
-            Back
-          </GradientButton>
-          
-          <GradientButton
-            onClick={handleRestart}
-            size="sm"
-            rounded="lg"
-          >
-            Restart
-          </GradientButton>
         </div>
       </div>
     </div>
