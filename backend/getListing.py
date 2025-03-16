@@ -52,4 +52,6 @@ def get_listing(product: str):
 
     return (sites[count].url, find_product_image(product)[0])
 
-print(get_listing("iPhone 16 Pro Max"))
+
+if __name__ == "__main__":
+    print(get_listing("iPhone 16 Pro Max"))

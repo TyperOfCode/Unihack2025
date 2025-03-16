@@ -1,8 +1,6 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from typing import Optional
-from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -12,8 +10,7 @@ import json
 import traceback
 
 from buildProfile import build_profile
-from clean_md import aggregation, clean_md
-from getProducts import get_markdown, get_product
+from getProducts import get_product
 from getListing import get_listing
 from getRecommendations import get_recommendations
 from models.profile import GiftUserProfile, LLMRequest
@@ -64,9 +61,7 @@ async def getRecommendations(data: GiftUserProfile):
 
 @app.post("/getProducts")
 async def getProduct(data: Recommendation):
-    md = get_markdown(data.product)
-    summaries = clean_md(md)
-    return aggregation(summaries)
+    return get_product(data.product)
 
 @app.post("/getListing")
 async def getListing(data: str):

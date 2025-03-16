@@ -2,7 +2,6 @@ import json
 import os
 import time
 from dotenv import load_dotenv
-from getProducts import get_markdown
 from models.product import CrawledData, Product, Products
 from typing import List
 from google import genai

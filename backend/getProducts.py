@@ -7,7 +7,6 @@ from models.product import CrawledData
 from models.recommendations import Gift, Recommendation
 from googlesearch import search
 from google import genai
-from clean_md import aggregation, clean_md
 
 load_dotenv()
 def get_markdown(query: str):
@@ -33,3 +32,11 @@ def get_markdown(query: str):
     for site in response2:
         return_list.append(CrawledData(url=site["url"], md=site["content"]))
     return return_list
+
+def get_product(query: str):
+    # Import the functions here to avoid circular imports
+    from clean_md import aggregation, clean_md
+    
+    data = get_markdown(query)
+    summaries = clean_md(data, query)
+    return aggregation(summaries)
