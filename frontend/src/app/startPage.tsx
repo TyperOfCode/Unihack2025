@@ -33,7 +33,7 @@ export default function StartPage({ handleGetStarted, isAnimating }: StartPagePr
       onClick={handleGetStarted}
       size="lg"
       rounded="full"
-      className="mt-8"
+      className="mt-8 cursor-pointer"
     >
       Get Started
     </GradientButton>
