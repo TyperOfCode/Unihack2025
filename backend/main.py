@@ -9,8 +9,7 @@ import json
 import traceback
 
 from buildProfile import build_profile
-from getProducts import get_listing, get_product, get_urls
-from getProducts import get_listing, get_product, get_urls
+from getProducts import get_listing, get_product, get_urls, get_product_async, get_urls_async
 from getRecommendations import get_recommendations
 from models.profile import GiftUserProfile, LLMRequest, SearchQuery
 from models.recommendations import Recommendation
@@ -56,12 +55,12 @@ async def getRecommendations(data: GiftUserProfile):
     return get_recommendations(data)
 
 @app.post("/getURLS")
-async def getURLS(product: str):
-    return get_urls(product)
+async def getURLS(product: SearchQuery):
+    return await get_urls_async(product.query)
 
 @app.post("/getProducts")
 async def getProduct(data: Recommendation, profile: GiftUserProfile):
-    return get_product(data.product, profile)
+    return await get_product_async(data.product, profile)
 
  
  

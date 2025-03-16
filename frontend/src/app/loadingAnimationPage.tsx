@@ -30,6 +30,10 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
   const [isUrlsFetched, setIsUrlsFetched] = useState(false);
   const [isProductsFetched, setIsProductsFetched] = useState(false);
   
+  // Add refs to track if API calls have been made
+  const urlsApiCallMade = useRef(false);
+  const productsApiCallMade = useRef(false);
+  
   // List of speech bubble comments
   const speechComments = [
     "Researching gifts...",
@@ -67,8 +71,14 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
   
   // Fetch URLs from backend when component mounts
   useEffect(() => {
+    // Only run if the API call hasn't been made yet
+    if (urlsApiCallMade.current) return;
+    
     const fetchUrls = async () => {
       try {
+        // Mark that we've started the API call
+        urlsApiCallMade.current = true;
+        
         const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
         const searchQuery = {
           query: `${recommendation.product} review guide 2025`
@@ -118,12 +128,17 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
     };
     
     fetchUrls();
-  }, [recommendation]);
+    // Empty dependency array ensures this only runs once on mount
+  }, [recommendation.product]);
 
   // Fetch products from backend
   useEffect(() => {
+    // Only run if initialized, not already fetched, and API call hasn't been made
+    if (!isInitialized || isProductsFetched || productsApiCallMade.current) return;
+    
     const fetchProducts = async () => {
-      if (!isInitialized || isProductsFetched) return;
+      // Mark that we've started the API call
+      productsApiCallMade.current = true;
       
       try {
         const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
@@ -160,11 +175,9 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
       }
     };
 
-    const timer = setTimeout(() => {
-      fetchProducts();
-    }, 100);
+    // Remove the setTimeout and call fetchProducts directly
+    fetchProducts();
     
-    return () => clearTimeout(timer);
   }, [isInitialized, isProductsFetched, recommendation, giftProfile, setProducts]);
   
   // Initialize positions once URLs are fetched and container is ready
@@ -479,15 +492,17 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
           position: absolute;
           background: white;
           border-radius: 1rem;
-          padding: 0.5rem 1rem;
+          padding: 0.75rem 1.25rem;
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-          font-size: 0.875rem;
+          font-size: 1rem;
           font-weight: 500;
           color: #6b7cff;
           border: 2px solid #e77ed6;
           white-space: nowrap;
           z-index: 30;
-          transform: translateY(-60px);
+          transform: translateY(-70px);
+          min-width: 180px;
+          text-align: center;
         }
         
         .speech-bubble:after {
@@ -518,7 +533,14 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
       `}</style>
 
       <div className="relative z-10 bg-white/70 backdrop-blur-sm rounded-3xl shadow-md h-screen flex flex-col p-4 md:p-8">
-        <h2 className="text-3xl font-bold text-[#e77ed6] mb-4 text-center">Researching Gift Ideas</h2>
+        <h2 className="text-3xl font-bold text-[#e77ed6] mb-2 text-center">Researching Gift Ideas</h2>
+        
+        {/* Add disclaimer */}
+        <div className="text-center mb-4 px-4 py-2 bg-[#FDE7FA] rounded-lg mx-auto max-w-md">
+          <p className="text-[#6b7cff] font-medium">
+            Please don't reload the page. Our AI is searching for the perfect gifts, which may take a moment (up to 3 minutes).
+          </p>
+        </div>
         
         <div 
           ref={containerRef} 
