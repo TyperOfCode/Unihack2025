@@ -16,7 +16,7 @@ def get_markdown(query: str):
         'Content-Type': 'application/json',
     }
 
-    json_data = {"search":query,"search_limit":15,"limit":1,"return_format":"markdown"}
+    json_data = {"search":query + " reviews","search_limit":15,"limit":1,"return_format":"markdown"}
 
     response1 = requests.post('https://api.spider.cloud/search', 
     headers=headers, json=json_data).json()
