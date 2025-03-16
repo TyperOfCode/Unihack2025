@@ -1,15 +1,16 @@
-from models.product import Products
-from models.stateRequest import saveStateRequest, stateDB
+from typing import List
+from models.product import DisplayProducts
+from models.stateRequest import stateDB
 import json
 
 states: stateDB = dict()
 
-def saveState(req: saveStateRequest):
-    states[req.uuid] = req.result
+def saveState(uuid: str, listings: DisplayProducts):
+    states[uuid] = listings
 
 def loadState(uuid: str):
     if uuid in states:
-        products: Products = states[uuid]
+        products: DisplayProducts = states[uuid]
         return json.dumps(products.model_dump())
     else:
         return ""
