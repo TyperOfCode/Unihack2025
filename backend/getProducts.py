@@ -7,9 +7,9 @@ from models.product import CrawledData
 from models.recommendations import Gift, Recommendation
 from googlesearch import search
 from google import genai
+from clean_md import aggregation, clean_md
 
 load_dotenv()
-from clean_md import aggregation, clean_md
 def get_markdown(query: str):
     headers = {
         'Authorization': f'Bearer {os.getenv("SPIDER_API_KEY")}',
