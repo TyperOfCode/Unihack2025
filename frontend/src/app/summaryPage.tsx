@@ -32,7 +32,7 @@ const SummaryPage: React.FC<SummaryPageProps> = ({
             >
               <div className="h-40 relative w-full bg-white">
                 <Image
-                  src={product.image_url}
+                  src={product.image}
                   alt={product.name}
                   fill
                   className="object-contain p-2"
@@ -57,7 +57,7 @@ const SummaryPage: React.FC<SummaryPageProps> = ({
                 
                 <div className="bg-white p-2 rounded-lg mb-3">
                   <h4 className="text-[#e77ed6] font-bold text-xs mb-0.5">Review Summary</h4>
-                  <p className="text-gray-700 text-xs italic line-clamp-2">{product.review_summary}</p>
+                  <p className="text-gray-700 text-xs italic line-clamp-2">{product.review_sentiment}</p>
                 </div>
                 
                 <a 
