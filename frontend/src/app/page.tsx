@@ -4,17 +4,20 @@ import { useState, useEffect } from "react";
 import StartPage from "./startPage";
 import QuestionPage from "./questionPage";
 import ProfileSummaryPage from "./profileSummaryPage";
+import NotePage from "./notePage";
 import LoadingAnimationPage from "./loadingAnimationPage";
 import SummaryPage from "./summaryPage";
 import { GiftUserProfile } from "@/models/profile";
 import { pingServer } from "@/lib/api";
 import { Recommendation } from "@/models/recommendation";
+import Category from "@/models/category";
 
 // Define page states as an enum
 export enum PageState {
   START = "start",
   QUESTION = "question",
   RESEARCH = "research",  
+  NOTE = "note",
   LOADING_ANIMATION = "loading_animation",
   SUMMARY = "summary"
 }
@@ -23,13 +26,20 @@ export default function Home() {
   const [pageState, setPageState] = useState<PageState>(PageState.START);
   const [isAnimating, setIsAnimating] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [giftProfile, setGiftProfile] = useState<GiftUserProfile | null>({
+  const [giftProfile, setGiftProfile] = useState<GiftUserProfile>({
     completed_percentage: 0,
     interests: [],
     dislikes: [],
-    about: ""
+    about: "",
   });
-  const [serverStatus, setServerStatus] = useState<'checking' | 'connected' | 'error'>('checking');
+  const [category, setCategory] = useState<Category>({
+    product: "",
+    reason: "",
+    price: 0,
+  });
+  const [serverStatus, setServerStatus] = useState<
+    "checking" | "connected" | "error"
+  >("checking");
   const [serverError, setServerError] = useState<string | null>(null);
   const [products, setProducts] = useState<any[]>([]);
 
@@ -38,12 +48,16 @@ export default function Home() {
     const checkServer = async () => {
       try {
         await pingServer();
-        setServerStatus('connected');
+        setServerStatus("connected");
         setServerError(null);
       } catch (error) {
-        console.error('Server connection error:', error);
-        setServerStatus('error');
-        setServerError(error instanceof Error ? error.message : 'Could not connect to the server');
+        console.error("Server connection error:", error);
+        setServerStatus("error");
+        setServerError(
+          error instanceof Error
+            ? error.message
+            : "Could not connect to the server",
+        );
       }
     };
 
@@ -64,26 +78,47 @@ export default function Home() {
   // Render the appropriate page based on the current state
   const renderPage = () => {
     // If we're still checking server status or there's an error, show a message
-    if (serverStatus === 'checking') {
+    if (serverStatus === "checking") {
       return (
         <div className="text-center p-8 bg-white rounded-3xl shadow-md">
-          <h2 className="text-2xl font-bold text-[#e77ed6] mb-4">Connecting to server...</h2>
+          <h2 className="text-2xl font-bold text-[#e77ed6] mb-4">
+            Connecting to server...
+          </h2>
           <div className="flex justify-center">
-            <svg className="animate-spin h-10 w-10 text-[#e77ed6]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <svg
+              className="animate-spin h-10 w-10 text-[#e77ed6]"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
           </div>
         </div>
       );
     }
 
-    if (serverStatus === 'error') {
+    if (serverStatus === "error") {
       return (
         <div className="text-center p-8 bg-white rounded-3xl shadow-md">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Server Connection Error</h2>
+          <h2 className="text-2xl font-bold text-red-600 mb-4">
+            Server Connection Error
+          </h2>
           <p className="text-lg text-gray-700 mb-6">
-            Could not connect to the backend server. Please make sure it's running.
+            Could not connect to the backend server. Please make sure it's
+            running.
           </p>
           {serverError && (
             <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg text-left">
@@ -91,7 +126,7 @@ export default function Home() {
               <p>{serverError}</p>
             </div>
           )}
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="px-6 py-3 bg-[#e77ed6] text-white rounded-lg hover:bg-[#d66ec5] transition-colors"
           >
@@ -110,14 +145,14 @@ export default function Home() {
     switch (pageState) {
       case PageState.START:
         return (
-          <StartPage 
-            handleGetStarted={() => navigateTo(PageState.QUESTION)} 
-            isAnimating={isAnimating} 
+          <StartPage
+            handleGetStarted={() => navigateTo(PageState.QUESTION)}
+            isAnimating={isAnimating}
           />
         );
       case PageState.QUESTION:
         return (
-          <QuestionPage 
+          <QuestionPage
             isAnimating={isAnimating}
             inputValue={inputValue}
             setInputValue={setInputValue}
@@ -130,17 +165,26 @@ export default function Home() {
       case PageState.RESEARCH:
         return (
           <ProfileSummaryPage 
-            handleNext={() => navigateTo(PageState.LOADING_ANIMATION)}
+            handleNext={() => navigateTo(PageState.NOTE)}
             handleBack={() => navigateTo(PageState.QUESTION)}
             giftProfile={giftProfile}
           />
         );
       case PageState.LOADING_ANIMATION:
         return (
+          <NotePage 
+            handleNext={() => navigateTo(PageState.LOADING_ANIMATION)}
+            handleBack={() => navigateTo(PageState.RESEARCH)}
+            giftProfile={giftProfile}
+            setCategory={setCategory}
+          />
+        );
+      case PageState.LOADING_ANIMATION:
+        return (
           <LoadingAnimationPage 
             handleNext={() => navigateTo(PageState.SUMMARY)}
-            handleBack={() => navigateTo(PageState.RESEARCH)}
-            chosenCategory={recommendation}
+            handleBack={() => navigateTo(PageState.NOTE)}
+            chosenCategory={category}
             setProducts={setProducts}
             giftProfile={giftProfile}
           />
@@ -153,7 +197,12 @@ export default function Home() {
           />
         );
       default:
-        return <StartPage handleGetStarted={() => navigateTo(PageState.QUESTION)} isAnimating={isAnimating} />;
+        return (
+          <StartPage
+            handleGetStarted={() => navigateTo(PageState.QUESTION)}
+            isAnimating={isAnimating}
+          />
+        );
     }
   };
 

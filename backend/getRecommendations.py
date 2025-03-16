@@ -27,7 +27,7 @@ def get_recommendations(data: GiftUserProfile):
         response_format=Recommendations
     )
     response: Recommendations = completion.choices[0].message.parsed
-    return json.dumps(response.model_dump())
+    return response.recommendations
 
 
 

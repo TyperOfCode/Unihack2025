@@ -1,3 +1,4 @@
+import Category from '@/models/category';
 import { GiftUserProfile, LLMResponse } from '@/models/profile';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.giftyai.org';
@@ -42,6 +43,26 @@ export async function buildProfile(data: BuildProfileRequest): Promise<LLMRespon
   } catch (error) {
     console.error('Error building profile:', error);
     throw new Error(`Failed to build profile: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+export async function getRecommendations(
+  giftProfile: GiftUserProfile,
+): Promise<Category[]> {
+  try {
+    const response = await fetchWithRetry(`${API_URL}/getRecommendations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(giftProfile),
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error getting recommendations:", error);
+    return [];
   }
 }
 
