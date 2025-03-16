@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import StartPage from "./startPage";
 import QuestionPage from "./questionPage";
-import ResearchPage from "./researchPage";
+import ProfileSummaryPage from "./profileSummaryPage";
 import NotePage from "./notePage";
+import LoadingAnimationPage from "./loadingAnimationPage";
 import SummaryPage from "./summaryPage";
 import { GiftUserProfile } from "@/types/profile";
 import { pingServer } from "@/lib/api";
@@ -13,8 +14,9 @@ import { pingServer } from "@/lib/api";
 export enum PageState {
   START = "start",
   QUESTION = "question",
-  RESEARCH = "research",
+  RESEARCH = "research",  
   NOTE = "note",
+  LOADING_ANIMATION = "loading_animation",
   SUMMARY = "summary"
 }
 
@@ -118,7 +120,7 @@ export default function Home() {
         );
       case PageState.RESEARCH:
         return (
-          <ResearchPage 
+          <ProfileSummaryPage 
             handleNext={() => navigateTo(PageState.NOTE)}
             handleBack={() => navigateTo(PageState.QUESTION)}
             giftProfile={giftProfile}
@@ -127,9 +129,17 @@ export default function Home() {
       case PageState.NOTE:
         return (
           <NotePage 
-            handleNext={() => navigateTo(PageState.SUMMARY)}
+            handleNext={() => navigateTo(PageState.LOADING_ANIMATION)}
             handleBack={() => navigateTo(PageState.RESEARCH)}
             giftProfile={giftProfile}
+          />
+        );
+      case PageState.LOADING_ANIMATION:
+        return (
+          <LoadingAnimationPage 
+            handleNext={() => navigateTo(PageState.SUMMARY)}
+            handleBack={() => navigateTo(PageState.NOTE)}
+            chosenCategory={giftProfile?.interests[0] || ""}
           />
         );
       case PageState.SUMMARY:
@@ -139,7 +149,7 @@ export default function Home() {
               setGiftProfile(null);
               navigateTo(PageState.START);
             }}
-            handleBack={() => navigateTo(PageState.NOTE)}
+            handleBack={() => navigateTo(PageState.LOADING_ANIMATION)}
             giftProfile={giftProfile}
           />
         );
@@ -148,14 +158,17 @@ export default function Home() {
     }
   };
 
+  // Determine if we should use full-width container for certain pages
+  const isFullWidthPage = pageState === PageState.LOADING_ANIMATION;
+
   return (
     <div 
-      className="flex flex-col items-center justify-center min-h-screen px-4" 
+      className={`flex flex-col items-center justify-center min-h-screen ${isFullWidthPage ? 'p-0' : 'px-4'}`}
       style={{ 
         background: "radial-gradient(circle, #FDE7FA 0%, #F5C9EE 100%)"
       }}
     >
-      <div className={`transition-all duration-500 ${isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+      <div className={`transition-all duration-500 ${isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'} ${isFullWidthPage ? 'w-full h-full' : ''}`}>
         {renderPage()}
       </div>
     </div>

@@ -134,7 +134,8 @@ const QuestionPage: React.FC<QuestionPageProps> = ({
       setIsLoading(false);
       
       // Check if profile completion percentage is over 60%
-      if (data.profile.completed_percentage > 60) {
+      const threshold = 20;
+      if (data.profile.completed_percentage > threshold) {
         // Add a small delay to allow the user to see the final response
         setTimeout(() => {
           handleNext(); // Navigate to the research page
