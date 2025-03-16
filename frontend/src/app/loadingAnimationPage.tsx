@@ -81,7 +81,7 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
         
         const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
         const searchQuery = {
-          query: `${recommendation.product} products review guide 2025`
+          query: `${recommendation.product} products gift review guide 2025`
         };
         
         const response = await fetch(`${backend_url}/getURLS`, {
