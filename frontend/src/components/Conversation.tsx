@@ -103,13 +103,14 @@ export function Conversation(
         {conversation.status === 'connected' && (
           <button
             onClick={stopConversation}
-            className="p-4 rounded-full shadow-lg transition-all duration-300 relative overflow-hidden group"
+            className="flex flex-col items-center gap-2 p-4 rounded-2xl shadow-lg transition-all duration-300 relative overflow-hidden group"
             style={{ 
               background: "linear-gradient(to right, #E77ED6, #E87BB3, #E77ED6)",
               backgroundSize: "200% auto",
             }}
           >
             <MicOff className="w-6 h-6 text-white relative z-10 transition-transform duration-300 group-hover:scale-110" />
+            <span className="text-white text-sm font-black relative z-10">Stop Conversation</span>
             <span 
               className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               style={{ 
@@ -131,13 +132,14 @@ export function Conversation(
         {conversation.status !== 'connecting' && conversation.status !== 'connected' && (
           <button
             onClick={startConversation}
-            className="p-4 rounded-full shadow-lg transition-all duration-300 relative overflow-hidden group"
+            className="flex flex-col items-center gap-2 p-4 rounded-2xl shadow-lg transition-all duration-300 relative overflow-hidden group"
             style={{ 
               background: "linear-gradient(to right, #E77ED6, #E87BB3, #E77ED6)",
               backgroundSize: "200% auto",
             }}
           >
             <Mic className="w-6 h-6 text-white relative z-10 transition-transform duration-300 group-hover:scale-110" />
+            <span className="text-white text-sm font-black relative z-10">Start Conversation</span>
             <span 
               className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               style={{ 
@@ -146,7 +148,6 @@ export function Conversation(
                 animation: "gradient-shift 3s ease infinite",
               }}
             ></span>
-
           </button>
         )}
       </div>
