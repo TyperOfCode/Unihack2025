@@ -3,19 +3,22 @@
 import { useState, useEffect } from "react";
 import StartPage from "./startPage";
 import QuestionPage from "./questionPage";
-import ResearchPage from "./researchPage";
+import ProfileSummaryPage from "./profileSummaryPage";
 import NotePage from "./notePage";
+import LoadingAnimationPage from "./loadingAnimationPage";
 import SummaryPage from "./summaryPage";
-import { GiftUserProfile } from "@/types/profile";
+import { GiftUserProfile } from "@/models/profile";
 import { pingServer } from "@/lib/api";
+import { Recommendation } from "@/models/recommendation";
 
 // Define page states as an enum
 export enum PageState {
   START = "start",
   QUESTION = "question",
-  RESEARCH = "research",
+  RESEARCH = "research",  
   NOTE = "note",
-  SUMMARY = "summary",
+  LOADING_ANIMATION = "loading_animation",
+  SUMMARY = "summary"
 }
 
 export default function Home() {
@@ -33,6 +36,7 @@ export default function Home() {
     "checking" | "connected" | "error"
   >("checking");
   const [serverError, setServerError] = useState<string | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
 
   // Check if the server is running
   useEffect(() => {
@@ -124,6 +128,12 @@ export default function Home() {
       );
     }
 
+    const recommendation: Recommendation = {
+      product: "Gaming Keyboard",
+      reason: "They love to game and they need a new keyboard",
+      price: 50
+    }
+
     switch (pageState) {
       case PageState.START:
         return (
@@ -146,7 +156,7 @@ export default function Home() {
         );
       case PageState.RESEARCH:
         return (
-          <ResearchPage
+          <ProfileSummaryPage 
             handleNext={() => navigateTo(PageState.NOTE)}
             handleBack={() => navigateTo(PageState.QUESTION)}
             giftProfile={giftProfile}
@@ -154,23 +164,32 @@ export default function Home() {
         );
       case PageState.NOTE:
         return (
-          <NotePage
-            handleNext={() => navigateTo(PageState.SUMMARY)}
+          <NotePage 
+            handleNext={() => navigateTo(PageState.LOADING_ANIMATION)}
             handleBack={() => navigateTo(PageState.RESEARCH)}
             giftProfile={giftProfile}
             setCategory={setCategory}
           />
         );
+      case PageState.LOADING_ANIMATION:
+        return (
+          <LoadingAnimationPage 
+            handleNext={() => navigateTo(PageState.SUMMARY)}
+            handleBack={() => navigateTo(PageState.NOTE)}
+            chosenCategory={recommendation}
+            setProducts={setProducts}
+            giftProfile={giftProfile}
+          />
+        );
       case PageState.SUMMARY:
         return (
-          <SummaryPage
+          <SummaryPage 
             handleRestart={() => {
               setGiftProfile(null);
               navigateTo(PageState.START);
             }}
-            handleBack={() => navigateTo(PageState.NOTE)}
-            giftProfile={giftProfile}
-            category={category}
+            handleBack={() => navigateTo(PageState.LOADING_ANIMATION)}
+            products={products}
           />
         );
       default:
@@ -183,16 +202,17 @@ export default function Home() {
     }
   };
 
+  // Determine if we should use full-width container for certain pages
+  const isFullWidthPage = pageState === PageState.LOADING_ANIMATION;
+
   return (
-    <div
-      className="flex flex-col items-center justify-center min-h-screen px-4"
-      style={{
-        background: "radial-gradient(circle, #FDE7FA 0%, #F5C9EE 100%)",
+    <div 
+      className={`flex flex-col items-center justify-center min-h-screen ${isFullWidthPage ? 'p-0' : 'px-4'}`}
+      style={{ 
+        background: "radial-gradient(circle, #FDE7FA 0%, #F5C9EE 100%)"
       }}
     >
-      <div
-        className={`transition-all duration-500 ${isAnimating ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
-      >
+      <div className={`transition-all duration-500 ${isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'} ${isFullWidthPage ? 'w-full h-full' : ''}`}>
         {renderPage()}
       </div>
     </div>

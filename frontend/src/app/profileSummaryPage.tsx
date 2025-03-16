@@ -1,20 +1,37 @@
 "use client";
 
 import GradientButton from "@/components/GradientButton";
-import { GiftUserProfile } from "@/types/profile";
+import { GiftUserProfile } from "@/models/profile";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
-interface ResearchPageProps {
+interface ProfileSummaryPageProps {
   handleNext: () => void;
   handleBack: () => void;
   giftProfile: GiftUserProfile | null;
 }
 
-const ResearchPage: React.FC<ResearchPageProps> = ({
+const ProfileSummaryPage: React.FC<ProfileSummaryPageProps> = ({
   handleNext,
   handleBack,
   giftProfile
 }) => {
+  // Create a local state to store the updated profile
+  const [localGiftProfile, setLocalGiftProfile] = useState<GiftUserProfile | null>(null);
+
+  // Set the completion percentage to 100% when the component mounts
+  useEffect(() => {
+    if (giftProfile) {
+      setLocalGiftProfile({
+        ...giftProfile,
+        completed_percentage: 100
+      });
+    }
+  }, [giftProfile]);
+
+  // Use the local profile state instead of the prop
+  const displayProfile = localGiftProfile || giftProfile;
+
   return (
     <div className="w-full max-w-5xl">
       <div className="bg-white p-8 rounded-3xl shadow-md mb-8">
@@ -33,20 +50,20 @@ const ResearchPage: React.FC<ResearchPageProps> = ({
           </div>
           
           <div className="flex-grow">
-            {giftProfile ? (
+            {displayProfile ? (
               <div className="space-y-6">
                 {/* Profile Completion */}
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-sm font-black text-[#6b7cff]">Profile Completion</span>
                     <span className="text-sm font-black text-[#6b7cff]">
-                      {giftProfile.completed_percentage}%
+                      {displayProfile.completed_percentage}%
                     </span>
                   </div>
                   <div className="w-full bg-[#FDE7FA] rounded-full h-2.5">
                     <div 
                       className="bg-gradient-to-r from-[#6b7cff] to-[#e77ed6] h-2.5 rounded-full transition-all duration-500 ease-in-out" 
-                      style={{ width: `${giftProfile.completed_percentage}%` }}
+                      style={{ width: `${displayProfile.completed_percentage}%` }}
                     ></div>
                   </div>
                 </div>
@@ -55,8 +72,8 @@ const ResearchPage: React.FC<ResearchPageProps> = ({
                 <div>
                   <h3 className="text-xl font-bold text-[#6b7cff] mb-2">About</h3>
                   <div className="bg-[#f5f5ff] p-4 rounded-xl">
-                    {giftProfile.about ? (
-                      <p className="text-gray-700">{giftProfile.about}</p>
+                    {displayProfile.about ? (
+                      <p className="text-gray-700">{displayProfile.about}</p>
                     ) : (
                       <p className="text-gray-400 italic">No description available</p>
                     )}
@@ -67,9 +84,9 @@ const ResearchPage: React.FC<ResearchPageProps> = ({
                 <div>
                   <h3 className="text-xl font-bold text-[#6b7cff] mb-2">Interests</h3>
                   <div className="bg-[#f5f5ff] p-4 rounded-xl">
-                    {giftProfile.interests && giftProfile.interests.length > 0 ? (
+                    {displayProfile.interests && displayProfile.interests.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
-                        {giftProfile.interests.map((interest, index) => (
+                        {displayProfile.interests.map((interest, index) => (
                           <div 
                             key={index} 
                             className="bg-white px-4 py-2 rounded-full text-[#6b7cff] font-medium flex items-center"
@@ -88,9 +105,9 @@ const ResearchPage: React.FC<ResearchPageProps> = ({
                 <div>
                   <h3 className="text-xl font-bold text-[#6b7cff] mb-2">Dislikes</h3>
                   <div className="bg-[#f5f5ff] p-4 rounded-xl">
-                    {giftProfile.dislikes && giftProfile.dislikes.length > 0 ? (
+                    {displayProfile.dislikes && displayProfile.dislikes.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
-                        {giftProfile.dislikes.map((dislike, index) => (
+                        {displayProfile.dislikes.map((dislike, index) => (
                           <div 
                             key={index} 
                             className="bg-white px-4 py-2 rounded-full text-[#e77ed6] font-medium flex items-center"
@@ -132,4 +149,4 @@ const ResearchPage: React.FC<ResearchPageProps> = ({
   );
 };
 
-export default ResearchPage; 
+export default ProfileSummaryPage; 

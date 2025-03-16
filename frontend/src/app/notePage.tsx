@@ -1,7 +1,7 @@
 "use client";
 
 import GradientButton from "@/components/GradientButton";
-import { GiftUserProfile } from "@/types/profile";
+import { GiftUserProfile } from "@/models/profile";
 import { Suspense, useEffect, useState } from "react";
 
 async function getRecommendations(

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import GradientButton from "@/components/GradientButton";
 import { buildProfile } from "@/lib/api";
-import { GiftUserProfile, LLMResponse } from "@/types/profile";
+import { GiftUserProfile, LLMResponse } from "@/models/profile";
 import { PageState } from "./page";
 import { Conversation } from "@/components/Conversation";
 import { TranscriptItem, TranscriptItemType } from "@/models/transcriptItem";
@@ -133,7 +133,8 @@ const QuestionPage: React.FC<QuestionPageProps> = ({
       setIsLoading(false);
 
       // Check if profile completion percentage is over 60%
-      if (data.profile.completed_percentage > 20) {
+      const threshold = 20;
+      if (data.profile.completed_percentage > threshold) {
         // Add a small delay to allow the user to see the final response
         setTimeout(() => {
           handleNext(); // Navigate to the research page

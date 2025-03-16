@@ -5,16 +5,16 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from uuid import uuid4
-from get_gifts import get_gifts
 import json
 import traceback
 
 from buildProfile import build_profile
-from getProducts import get_product
-from getListing import get_listing
+from getProducts import get_listing, get_product, get_urls, get_product_async, get_urls_async
 from getRecommendations import get_recommendations
-from models.profile import GiftUserProfile, LLMRequest
+from models.profile import GiftUserProfile, LLMRequest, SearchQuery
 from models.recommendations import Recommendation
+from models.stateRequest import loadStateRequest, saveStateRequest
+from state import saveState, loadState
 
 app = FastAPI()
 
@@ -40,11 +40,6 @@ app.add_middleware(
 async def ping():
     return {"success": True}
 
-@app.post("/get_gifts")
-async def get_gifts_route():
-    return await get_gifts()
-
-
 @app.post("/buildProfile")
 async def buildProfile(data: LLMRequest):
     try:
@@ -59,15 +54,16 @@ async def buildProfile(data: LLMRequest):
 async def getRecommendations(data: GiftUserProfile):
     return get_recommendations(data)
 
+@app.post("/getURLS")
+async def getURLS(product: SearchQuery):
+    return await get_urls_async(product.query)
+
 @app.post("/getProducts")
-async def getProduct(data: Recommendation):
-    return get_product(data.product)
+async def getProduct(data: Recommendation, profile: GiftUserProfile):
+    return await get_product_async(data.product, profile)
 
-@app.post("/getListing")
-async def getListing(data: str):
-    return get_listing(data)
-
-    
+ 
+ 
 
 # Add a global exception handler
 @app.exception_handler(Exception)
@@ -76,3 +72,7 @@ async def global_exception_handler(request, exc):
         status_code=500,
         content={"detail": str(exc)},
     )
+
+@app.get("/loadState")
+async def loadState(req: loadStateRequest):
+    return loadState(req.uuid)

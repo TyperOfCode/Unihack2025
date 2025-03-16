@@ -6,7 +6,7 @@ import DynamicVariables from '@/models/dynamicVariables';
 import GradientButton from './GradientButton';
 import { Loader2, Mic, MicOff } from 'lucide-react';
 import Message from '@/models/message';
-import { GiftUserProfile, LLMResponse } from '@/types/profile';
+import { GiftUserProfile, LLMResponse } from '@/models/profile';
 
 interface ConversationProps {
   dynamicVariables: DynamicVariables;
