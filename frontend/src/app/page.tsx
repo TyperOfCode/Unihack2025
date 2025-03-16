@@ -10,6 +10,7 @@ import SummaryPage from "./summaryPage";
 import { GiftUserProfile } from "@/models/profile";
 import { pingServer } from "@/lib/api";
 import { Recommendation } from "@/models/recommendation";
+import Category from "@/models/category";
 
 // Define page states as an enum
 export enum PageState {
@@ -25,13 +26,17 @@ export default function Home() {
   const [pageState, setPageState] = useState<PageState>(PageState.START);
   const [isAnimating, setIsAnimating] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [giftProfile, setGiftProfile] = useState<GiftUserProfile | null>({
+  const [giftProfile, setGiftProfile] = useState<GiftUserProfile>({
     completed_percentage: 0,
     interests: [],
     dislikes: [],
     about: "",
   });
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<Category>({
+    product: "",
+    reason: "",
+    price: 0,
+  });
   const [serverStatus, setServerStatus] = useState<
     "checking" | "connected" | "error"
   >("checking");
@@ -128,12 +133,6 @@ export default function Home() {
       );
     }
 
-    const recommendation: Recommendation = {
-      product: "Gaming Keyboard",
-      reason: "They love to game and they need a new keyboard",
-      price: 50
-    }
-
     switch (pageState) {
       case PageState.START:
         return (
@@ -176,7 +175,7 @@ export default function Home() {
           <LoadingAnimationPage 
             handleNext={() => navigateTo(PageState.SUMMARY)}
             handleBack={() => navigateTo(PageState.NOTE)}
-            chosenCategory={recommendation}
+            chosenCategory={category}
             setProducts={setProducts}
             giftProfile={giftProfile}
           />
@@ -185,7 +184,12 @@ export default function Home() {
         return (
           <SummaryPage 
             handleRestart={() => {
-              setGiftProfile(null);
+              setGiftProfile({
+                completed_percentage: 0,
+                interests: [],
+                dislikes: [],
+                about: "",
+              });
               navigateTo(PageState.START);
             }}
             handleBack={() => navigateTo(PageState.LOADING_ANIMATION)}

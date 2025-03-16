@@ -133,7 +133,7 @@ const QuestionPage: React.FC<QuestionPageProps> = ({
       setIsLoading(false);
 
       // Check if profile completion percentage is over 60%
-      const threshold = 20;
+      const threshold = 10;
       if (data.profile.completed_percentage > threshold) {
         // Add a small delay to allow the user to see the final response
         setTimeout(() => {
