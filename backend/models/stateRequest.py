@@ -1,6 +1,6 @@
 from typing import Dict
 from pydantic import BaseModel
-from product import Products
+from models.product import Products
 
 class saveStateRequest(BaseModel):
     uuid: str

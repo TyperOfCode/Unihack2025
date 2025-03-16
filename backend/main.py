@@ -16,6 +16,7 @@ from getRecommendations import get_recommendations
 from models.profile import GiftUserProfile, LLMRequest
 from models.recommendations import Recommendation
 from models.stateRequest import loadStateRequest, saveStateRequest
+from state import saveState, loadState
 
 app = FastAPI()
 
@@ -78,13 +79,6 @@ async def global_exception_handler(request, exc):
         content={"detail": str(exc)},
     )
 
-@app.post("/saveState")
-async def saveState(req: saveStateRequest):
-    saveState(req)
-    return JSONResponse(
-        status_code=200,
-    )
-
-@app.post("/loadState")
+@app.get("/loadState")
 async def loadState(req: loadStateRequest):
     return loadState(req.uuid)
