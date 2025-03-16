@@ -7,7 +7,7 @@ import ProfileSummaryPage from "./profileSummaryPage";
 import NotePage from "./notePage";
 import LoadingAnimationPage from "./loadingAnimationPage";
 import SummaryPage from "./summaryPage";
-import { GiftUserProfile } from "@/types/profile";
+import { GiftUserProfile } from "@/models/profile";
 import { pingServer } from "@/lib/api";
 
 // Define page states as an enum
@@ -156,7 +156,7 @@ export default function Home() {
               navigateTo(PageState.START);
             }}
             handleBack={() => navigateTo(PageState.LOADING_ANIMATION)}
-            giftProfile={giftProfile}
+            products={[]}
           />
         );
       default:

@@ -1,4 +1,4 @@
-import { GiftUserProfile, LLMResponse } from '@/types/profile';
+import { GiftUserProfile, LLMResponse } from '@/models/profile';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
