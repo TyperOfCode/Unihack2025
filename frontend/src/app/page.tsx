@@ -60,6 +60,9 @@ export default function Home() {
     }, 500);
   };
 
+  const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+  console.log(backend_url);
+
   // Render the appropriate page based on the current state
   const renderPage = () => {
     // If we're still checking server status or there's an error, show a message
