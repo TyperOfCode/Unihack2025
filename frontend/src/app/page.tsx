@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import StartPage from "./startPage";
 import QuestionPage from "./questionPage";
 import ProfileSummaryPage from "./profileSummaryPage";
-import NotePage from "./notePage";
 import LoadingAnimationPage from "./loadingAnimationPage";
 import SummaryPage from "./summaryPage";
 import { GiftUserProfile } from "@/models/profile";
@@ -16,7 +15,6 @@ export enum PageState {
   START = "start",
   QUESTION = "question",
   RESEARCH = "research",  
-  NOTE = "note",
   LOADING_ANIMATION = "loading_animation",
   SUMMARY = "summary"
 }
@@ -104,8 +102,8 @@ export default function Home() {
     }
 
     const recommendation: Recommendation = {
-      product: "Gaming Keyboard",
-      reason: "They love to game and they need a new keyboard",
+      product: `${giftProfile?.about || ''} ${giftProfile?.interests?.toString() || ''}`.trim() || "",
+      reason: "",
       price: 50
     }
 
@@ -132,16 +130,8 @@ export default function Home() {
       case PageState.RESEARCH:
         return (
           <ProfileSummaryPage 
-            handleNext={() => navigateTo(PageState.NOTE)}
-            handleBack={() => navigateTo(PageState.QUESTION)}
-            giftProfile={giftProfile}
-          />
-        );
-      case PageState.NOTE:
-        return (
-          <NotePage 
             handleNext={() => navigateTo(PageState.LOADING_ANIMATION)}
-            handleBack={() => navigateTo(PageState.RESEARCH)}
+            handleBack={() => navigateTo(PageState.QUESTION)}
             giftProfile={giftProfile}
           />
         );
@@ -149,7 +139,7 @@ export default function Home() {
         return (
           <LoadingAnimationPage 
             handleNext={() => navigateTo(PageState.SUMMARY)}
-            handleBack={() => navigateTo(PageState.NOTE)}
+            handleBack={() => navigateTo(PageState.RESEARCH)}
             chosenCategory={recommendation}
             setProducts={setProducts}
             giftProfile={giftProfile}
