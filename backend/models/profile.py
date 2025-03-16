@@ -15,3 +15,7 @@ class LLMRequest(BaseModel):
 class LLMResponse(BaseModel):
     profile: GiftUserProfile
     newQuestion: str
+
+
+class SearchQuery(BaseModel):
+    query: str

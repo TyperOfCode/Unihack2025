@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import GradientButton from "@/components/GradientButton";
+import { Recommendation } from "@/types/recommendation";
 
 interface LoadingAnimationPageProps {
   handleNext: () => void;
   handleBack: () => void;
-  chosenCategory: string;
+  chosenCategory: Recommendation;
 }
 
 interface Position {
@@ -20,14 +20,10 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
   handleBack,
   chosenCategory,
 }) => {
-  // List of keywords to display in tiles
-  const keywords = [
-    "Gifts", "Hobbies", "Interests", "Preferences", "Favorites",
-    "Personality", "Style", "Trends", "Unique", "Thoughtful",
-    "Memorable", "Special", "Personalized", "Surprise", "Delight",
-    "Creativity", "Passion", "Adventure", "Relaxation", "Experience"
-  ];
-
+  // State for URLs fetched from backend
+  const [urls, setUrls] = useState<string[]>([]);
+  const [isUrlsFetched, setIsUrlsFetched] = useState(false);
+  
   // List of speech bubble comments
   const speechComments = [
     "Researching gifts...",
@@ -63,17 +59,72 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
   const [draggedTileIndex, setDraggedTileIndex] = useState<number | null>(null);
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   
-  // Initialize positions once on mount
+  // Fetch URLs from backend when component mounts
   useEffect(() => {
-    if (!containerRef.current || isInitialized) return;
+    const fetchUrls = async () => {
+      try {
+        const backend_url = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+        const searchQuery = {
+          query: `${chosenCategory.product} review guide 2025`
+        };
+        
+        const response = await fetch(`${backend_url}/getURLS`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(searchQuery),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch URLs');
+        }
+        
+        const data = await response.json();
+        
+        // Ensure we have at least some URLs to display
+        if (data && Array.isArray(data) && data.length > 0) {
+          // Limit to 20 URLs to avoid overwhelming the UI
+          const limitedUrls = data.slice(0, 20);
+          setUrls(limitedUrls);
+          setIsUrlsFetched(true);
+        } else {
+          // Fallback to default keywords if no URLs are returned
+          setUrls([
+            "Gifts", "Hobbies", "Interests", "Preferences", "Favorites",
+            "Personality", "Style", "Trends", "Unique", "Thoughtful",
+            "Memorable", "Special", "Personalized", "Surprise", "Delight",
+            "Creativity", "Passion", "Adventure", "Relaxation", "Experience"
+          ]);
+          setIsUrlsFetched(true);
+        }
+      } catch (error) {
+        console.error('Error fetching URLs:', error);
+        // Fallback to default keywords if there's an error
+        setUrls([
+          "Gifts", "Hobbies", "Interests", "Preferences", "Favorites",
+          "Personality", "Style", "Trends", "Unique", "Thoughtful",
+          "Memorable", "Special", "Personalized", "Surprise", "Delight",
+          "Creativity", "Passion", "Adventure", "Relaxation", "Experience"
+        ]);
+        setIsUrlsFetched(true);
+      }
+    };
+    
+    fetchUrls();
+  }, [chosenCategory]);
+  
+  // Initialize positions once URLs are fetched and container is ready
+  useEffect(() => {
+    if (!containerRef.current || isInitialized || !isUrlsFetched || urls.length === 0) return;
     
     const containerWidth = containerRef.current.offsetWidth;
     const containerHeight = containerRef.current.offsetHeight;
     
     if (containerWidth === 0 || containerHeight === 0) return;
     
-    // Generate random positions for each keyword tile
-    const positions = keywords.map(() => {
+    // Generate random positions for each URL tile
+    const positions = urls.map(() => {
       // Leave some margin from the edges
       const margin = Math.min(100, containerWidth * 0.1);
       const tileWidth = 150;
@@ -95,7 +146,7 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
     }
     
     setIsInitialized(true);
-  }, [containerRef, isInitialized, keywords]);
+  }, [containerRef, isInitialized, urls, isUrlsFetched]);
   
   // Set up target tile changing
   useEffect(() => {
@@ -300,6 +351,26 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
     setIsDragging(true);
   };
 
+  // Helper function to truncate URLs for display
+  const formatUrlForDisplay = (url: string) => {
+    try {
+      const urlObj = new URL(url);
+      // Return just the hostname and the first part of the path
+      let displayText = urlObj.hostname.replace('www.', '');
+      if (urlObj.pathname && urlObj.pathname !== '/') {
+        // Add first part of path if it exists
+        const pathParts = urlObj.pathname.split('/').filter(Boolean);
+        if (pathParts.length > 0) {
+          displayText += `/${pathParts[0]}`;
+        }
+      }
+      return displayText;
+    } catch (e) {
+      // If URL parsing fails, just return a truncated version
+      return url;
+    }
+  };
+
   return (
     <div className="w-full h-full">
       {/* Animated flowing radial gradient background */}
@@ -411,7 +482,7 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
           ref={containerRef} 
           className="relative w-full flex-grow overflow-hidden"
         >
-          {/* Keyword tiles */}
+          {/* URL tiles */}
           {isInitialized && tilePositions.map((position, index) => (
             <div
               key={index}
@@ -432,7 +503,7 @@ const LoadingAnimationPage: React.FC<LoadingAnimationPageProps> = ({
               <span className={`font-medium select-none ${
                 targetTileIndex === index ? 'text-[#e77ed6]' : 'text-[#6b7cff]'
               }`}>
-                {keywords[index]}
+                {formatUrlForDisplay(urls[index])}
               </span>
             </div>
           ))}
