@@ -12,8 +12,9 @@ import json
 import traceback
 
 from buildProfile import build_profile
+from clean_md import aggregation, clean_md
+from getProducts import get_markdown, get_product
 from getListing import get_listing
-from getProducts import get_product
 from getRecommendations import get_recommendations
 from models.profile import GiftUserProfile, LLMRequest
 from models.recommendations import Recommendation
@@ -63,11 +64,9 @@ async def getRecommendations(data: GiftUserProfile):
 
 @app.post("/getProducts")
 async def getProduct(data: Recommendation):
-    pass
-    # take in query string and run get_markdown
-    # run clean_md
-    # run aggregation
-    # return Products model from aggration
+    md = get_markdown(data.product)
+    summaries = clean_md(md)
+    return aggregation(summaries)
 
 @app.post("/getListing")
 async def getListing(data: str):

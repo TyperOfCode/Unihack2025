@@ -1,3 +1,4 @@
+import json
 import os
 import time
 from dotenv import load_dotenv
@@ -66,4 +67,4 @@ def aggregation(summaries: str):
         response_format=Products
     )
     response = completion.choices[0].message.parsed
-    return response.model_dump()
+    return json.dumps(response.model_dump())
