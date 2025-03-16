@@ -46,17 +46,17 @@ def clean_md(data: List[CrawledData], product: str):
     )
     return response.text
 
-def aggregation(summaries: str):
+def aggregation(summaries: str, profile: str):
     completion = openAiClient.beta.chat.completions.parse(
         model="gpt-4o-mini",
         messages=[
             {
                 "role": "system",
-                "content": """You are a specialised data analyst. You will be given multiple summaries (separated by a newline) about a certain product
+                "content": f"""You are a specialised data analyst. You will be given multiple summaries (separated by a newline) about a certain product
                 but from different websites. Your job is to aggregate all the summaries to then decide which three products the user should purchase.
                 Take into consideration price, reviews, availability and any other data point that is relevant. After deciding
                 on which products, return your findings in the response_format provided.
-                You should provide a name, price, descriptionin about 15 words, and review sentiment about 15 words for each product.
+                You should provide a name, price, descriptionin about 15 words, review sentiment about 15 words, and a reason this product is good for this person :{profile}. You should do this for each product.
                 """
             },
             {

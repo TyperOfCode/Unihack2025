@@ -57,12 +57,8 @@ async def getURLS(product: str):
     return get_urls(product)
 
 @app.post("/getProducts")
-async def getProduct(data: Recommendation):
-    return get_product(data.product)
-
-@app.post("/getListing")
-async def getListing(data: str):
-    return get_listing(data)
+async def getProduct(data: Recommendation, profile: GiftUserProfile):
+    return get_product(data.product, profile)
 
  
 
