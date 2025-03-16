@@ -56,6 +56,7 @@ def aggregation(summaries: str):
                 but from different websites. Your job is to aggregate all the summaries to then decide which three products the user should purchase.
                 Take into consideration price, reviews, availability and any other data point that is relevant. After deciding
                 on which products, return your findings in the response_format provided.
+                You should provide a name, price, descriptionin about 15 words, and review sentiment about 15 words for each product.
                 """
             },
             {
@@ -66,4 +67,4 @@ def aggregation(summaries: str):
         response_format=Products
     )
     response = completion.choices[0].message.parsed
-    return json.dumps(response.model_dump())
+    return response
