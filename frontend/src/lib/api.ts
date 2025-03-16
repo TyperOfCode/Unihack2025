@@ -1,6 +1,6 @@
 import { GiftUserProfile, LLMResponse } from '@/models/profile';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.giftyai.org';
 
 interface BuildProfileRequest {
   pastQuestions: string[];
