@@ -1,7 +1,7 @@
 import Category from '@/models/category';
 import { GiftUserProfile, LLMResponse } from '@/models/profile';
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.giftyai.org';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 interface BuildProfileRequest {
   pastQuestions: string[];
