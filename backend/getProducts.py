@@ -110,11 +110,11 @@ def get_product(query: str, profile: GiftUserProfile):
                 url=listing.url
             ))
     return listings
-start = time.time()
-print(get_product("iPhone 16 Pro Max",  GiftUserProfile(
-    interests=["technology", "gadgets", "photography"],
-    dislikes=["sports", "cooking"],
-    about="A tech enthusiast who loves gadgets and photography.",
-    completed_percentage=75.0)))
-end = time.time()
-print(end-start)
+# start = time.time()
+# print(get_product("iPhone 16 Pro Max",  GiftUserProfile(
+#     interests=["technology", "gadgets", "photography"],
+#     dislikes=["sports", "cooking"],
+#     about="A tech enthusiast who loves gadgets and photography.",
+#     completed_percentage=75.0)))
+# end = time.time()
+# print(end-start)
