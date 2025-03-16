@@ -98,6 +98,12 @@ export default function Home() {
       );
     }
 
+    const recommendation = {
+      product: "Gaming Keyboard",
+      reason: "They love to game and they need a new keyboard",
+      price: 50
+    }
+
     switch (pageState) {
       case PageState.START:
         return (
@@ -139,7 +145,7 @@ export default function Home() {
           <LoadingAnimationPage 
             handleNext={() => navigateTo(PageState.SUMMARY)}
             handleBack={() => navigateTo(PageState.NOTE)}
-            chosenCategory={giftProfile?.interests[0] || ""}
+            chosenCategory={recommendation}
           />
         );
       case PageState.SUMMARY:
