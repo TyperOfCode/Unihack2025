@@ -8,7 +8,10 @@ import json
 import traceback
 
 from buildProfile import build_profile
-from models.profile import LLMRequest
+from getProducts import get_product
+from getRecommendations import get_recommendations
+from models.profile import GiftUserProfile, LLMRequest
+from models.recommendations import Recommendation
 
 app = FastAPI()
 
@@ -43,6 +46,19 @@ async def buildProfile(data: LLMRequest):
         print(f"Error in buildProfile: {str(e)}")
         print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/getRecommendations")
+async def getRecommendations(data: GiftUserProfile):
+    return get_recommendations(data)
+
+@app.post("/getProducts")
+async def getProduct(data: Recommendation):
+    pass
+    # take in query string and run get_markdown
+    # run clean_md
+    # run aggregation
+    # return Products model from aggration
+    
 
 # Add a global exception handler
 @app.exception_handler(Exception)
