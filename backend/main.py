@@ -10,6 +10,7 @@ import traceback
 
 from buildProfile import build_profile
 from getProducts import get_listing, get_product, get_urls
+from getProducts import get_listing, get_product, get_urls
 from getRecommendations import get_recommendations
 from models.profile import GiftUserProfile, LLMRequest, SearchQuery
 from models.recommendations import Recommendation
@@ -55,13 +56,14 @@ async def getRecommendations(data: GiftUserProfile):
     return get_recommendations(data)
 
 @app.post("/getURLS")
-async def getURLS(product: SearchQuery):
-    return get_urls(product.query)
+async def getURLS(product: str):
+    return get_urls(product)
 
 @app.post("/getProducts")
 async def getProduct(data: Recommendation, profile: GiftUserProfile):
     return get_product(data.product, profile)
 
+ 
  
 
 # Add a global exception handler

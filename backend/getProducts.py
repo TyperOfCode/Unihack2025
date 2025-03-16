@@ -1,9 +1,13 @@
 import concurrent
-import json
 import os, requests
 import time
 from typing import List
+from typing import List
 from dotenv import load_dotenv
+from clean_md import clean_md, aggregation
+from models.product import CrawledData, DisplayProduct, Listing, Products
+from concurrent.futures import ThreadPoolExecutor
+import re
 from clean_md import clean_md, aggregation
 from models.product import CrawledData, DisplayProduct, Listing, Products
 from concurrent.futures import ThreadPoolExecutor
@@ -11,9 +15,24 @@ import re
 from google import genai
 from duckduckgo_search import DDGS
 
-from models.profile import GiftUserProfile
-
 load_dotenv()
+
+def extract_image_urls(markdown: str) -> List[str]:
+    # Regular expression to find image URLs in markdown
+    image_url_pattern = re.compile(r'https://[^:]*\.(?:png|jpg|jpeg)')
+    return image_url_pattern.findall(markdown)
+
+def find_product_image(product_name):
+    with DDGS() as ddgs:
+        results = list(ddgs.images(product_name, max_results=10))
+    if results:
+        for result in results:
+            if ".png" in result["image"] or ".jpg" in result["image"]:
+                return extract_image_urls(result["image"])
+        return "No image found."
+    else:
+        return "No image found."
+
 
 def extract_image_urls(markdown: str) -> List[str]:
     # Regular expression to find image URLs in markdown
@@ -36,6 +55,8 @@ def get_markdown(query: str):
         'Authorization': f'Bearer {os.getenv("SPIDER_API_KEY")}',
         'Content-Type': 'application/json',
     }
+    
+    urls_string = ",".join(get_urls(query))
     
     urls_string = ",".join(get_urls(query))
     json_data = {"limit":1,"return_format":"markdown", "url":urls_string}
@@ -85,11 +106,11 @@ def get_urls(query: str):
         urls.append(site["url"])
     return urls
 
-def get_product(query: str, profile: GiftUserProfile):
+def get_product(query: str):
     
     data = get_markdown(query)
     summaries = clean_md(data, query)
-    products: Products = aggregation(summaries, json.dumps(profile.model_dump()))
+    products: Products = aggregation(summaries)
     listings: List[DisplayProduct] = []
     
     def fetch_listing(product_name):
@@ -99,22 +120,17 @@ def get_product(query: str, profile: GiftUserProfile):
         future_to_product = {executor.submit(fetch_listing, product.name): product for product in products.products}
         for future in concurrent.futures.as_completed(future_to_product):
             product = future_to_product[future]
-            listing: Listing = future.result()
+            listing = future.result()
             listings.append(DisplayProduct(
                 name=product.name,
                 price=product.price,
                 description=product.description,
                 review_sentiment=product.review_sentiment,
-                reason=product.reason,
                 image=listing.image,
                 url=listing.url
             ))
     return listings
-# start = time.time()
-# print(get_product("iPhone 16 Pro Max",  GiftUserProfile(
-#     interests=["technology", "gadgets", "photography"],
-#     dislikes=["sports", "cooking"],
-#     about="A tech enthusiast who loves gadgets and photography.",
-#     completed_percentage=75.0)))
-# end = time.time()
-# print(end-start)
+start = time.time()
+print(get_product("iPhone 16 Pro Max"))
+end = time.time()
+print(end-start)
