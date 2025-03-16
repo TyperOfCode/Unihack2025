@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import GradientButton from "@/components/GradientButton";
 import { buildProfile } from "@/lib/api";
-import { GiftUserProfile, LLMResponse } from "@/types/profile";
+import { GiftUserProfile, LLMResponse } from "@/models/profile";
 import { PageState } from "./page";
 import { Conversation } from "@/components/Conversation";
 import { TranscriptItem, TranscriptItemType } from "@/models/transcriptItem";

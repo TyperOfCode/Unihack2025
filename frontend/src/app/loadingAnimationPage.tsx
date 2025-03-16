@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Recommendation } from "@/types/recommendation";
+import { Recommendation } from "@/models/recommendation";
 
 interface LoadingAnimationPageProps {
   handleNext: () => void;

@@ -1,7 +1,7 @@
 "use client";
 
 import GradientButton from "@/components/GradientButton";
-import { GiftUserProfile } from "@/types/profile";
+import { GiftUserProfile } from "@/models/profile";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
